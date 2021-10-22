@@ -2,15 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Portifolio675.Data;
 
 namespace Portifolio675.Migrations
 {
     [DbContext(typeof(PortDbContext))]
-    partial class PortDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211022031341_v01")]
+    partial class v01
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
