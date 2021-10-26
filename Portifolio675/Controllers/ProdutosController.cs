@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Portifolio675.Data;
 using Portifolio675.Models;
 
-namespace Projeto1___Ecomerce.Controllers
+namespace Portifolio675.Controllers
 {
     public class ProdutosController : Controller
     {
@@ -23,7 +23,7 @@ namespace Projeto1___Ecomerce.Controllers
             _hostEnvironment = hostEnvironment;
         }
 
-        // GET: Produtos
+       [HttpGet]
         public async Task<IActionResult> Index()
         {
 
@@ -32,10 +32,9 @@ namespace Projeto1___Ecomerce.Controllers
             return View(await _context.Produtos.OrderBy(x => x.Nome).Include(x => x.Categoria).AsNoTracking().ToListAsync());
         }
 
-        // GET: Produtos/Details/5
-       
 
-        // GET: Produtos/Create
+
+          [HttpGet]
         public async Task<IActionResult> Create(int? id)
         {
             var categorias = _context.Categorias.OrderBy(x => x.Nome).AsNoTracking().ToList();
@@ -60,35 +59,65 @@ namespace Projeto1___Ecomerce.Controllers
             return _context.Produtos.Any(x => x.IdProduto == id);
         }
 
-    
-
-    // POST: Produtos/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nome,Valor,Memoria,Cor,Title,ImageFile")] ProdutoModel produto)
+        public async Task<IActionResult> Create(int? id, [FromForm] ProdutoModel produto)
         {
-            if (ModelState.IsValid)
+            string wwwwRootPath = _hostEnvironment.WebRootPath;
+            string fileName = Path.GetFileNameWithoutExtension(produto.ImageFile.FileName);
+            string extension = Path.GetExtension(produto.ImageFile.FileName);
+            produto.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+            string path = Path.Combine(wwwwRootPath + "/Image/", fileName);
+            using (var fileStream = new FileStream(path, FileMode.Create))
+
+                if (ModelState.IsValid)
             {
-                // save image to wwwroot/image
-                string wwwwRootPath = _hostEnvironment.WebRootPath;
-                string fileName = Path.GetFileNameWithoutExtension(produto.ImageFile.FileName);
-                string extension = Path.GetExtension(produto.ImageFile.FileName);
-                produto.ImageName = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                string path = Path.Combine(wwwwRootPath + "/Image/", fileName);
-                using (var fileStream = new FileStream(path, FileMode.Create))
+                  // upload save image to wwwroot/image
+                
                 {
                     await produto.ImageFile.CopyToAsync(fileStream);
 
-                } 
-
-                _context.Add(produto);
-                await _context.SaveChangesAsync();
+                }
+                if (id.HasValue)
+                {
+                    if (ProdutoExiste(id.Value))
+                    {
+                        _context.Produtos.Update(produto);
+                        if (await _context.SaveChangesAsync() > 0)
+                        {
+                            TempData["mensagem"] = MensagemModel.Serializar("Produto alterado com sucesso.");
+                        }
+                        else
+                        {
+                            TempData["mensagem"] = MensagemModel.Serializar("Erro ao alterar produto.", TipoMensagem.Erro);
+                        }
+                    }
+                    else
+                    {
+                        TempData["mensagem"] = MensagemModel.Serializar("Produto não encontrado.", TipoMensagem.Erro);
+                    }
+                }
+                else
+                {
+                    _context.Produtos.Add(produto);
+                    if (await _context.SaveChangesAsync() > 0)
+                    {
+                        TempData["mensagem"] = MensagemModel.Serializar("Produto cadastrado com sucesso.");
+                    }
+                    else
+                    {
+                        TempData["mensagem"] = MensagemModel.Serializar("Erro ao cadastrar produto.", TipoMensagem.Erro);
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            return View(produto);
+            else
+            {
+                return View(produto);
+            }
         }
+
+
 
         // GET: Produtos/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -146,14 +175,16 @@ namespace Projeto1___Ecomerce.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                TempData["mensagem"] = MensagemModel.Serializar("Produto não informado.", TipoMensagem.Erro);
+                return RedirectToAction(nameof(Index));
             }
 
             var produto = await _context.Produtos
                 .FirstOrDefaultAsync(m => m.IdProduto == id);
             if (produto == null)
             {
-                return NotFound();
+                TempData["mensagem"] = MensagemModel.Serializar("Produto não encontrado.", TipoMensagem.Erro);
+                return RedirectToAction(nameof(Index));
             }
 
             return View(produto);
@@ -171,8 +202,18 @@ namespace Projeto1___Ecomerce.Controllers
             if (System.IO.File.Exists(imagePath))
                 System.IO.File.Exists(imagePath);
 
-            _context.Produtos.Remove(produto);
-            await _context.SaveChangesAsync();
+            if (produto != null)
+            {
+                _context.Produtos.Remove(produto);
+                if (await _context.SaveChangesAsync() > 0)
+                    TempData["mensagem"] = MensagemModel.Serializar("Produto excluído com sucesso.");
+                else
+                    TempData["mensagem"] = MensagemModel.Serializar("Não foi possível excluir o produto.", TipoMensagem.Erro);
+            }
+            else
+            {
+                TempData["mensagem"] = MensagemModel.Serializar("Produto não encontrado.", TipoMensagem.Erro);
+            }
             return RedirectToAction(nameof(Index));
         }
 

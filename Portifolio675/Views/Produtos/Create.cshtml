@@ -1,0 +1,68 @@
+@model ProdutoModel
+@{
+    if (Context.Request.RouteValues.ContainsKey("id"))
+        ViewBag.Subtitulo = "Alteração de Produto";
+    else
+        ViewBag.Subtitulo = "Cadastro de Produto";
+}
+
+<h1 class="text-primary">@ViewBag.Subtitulo</h1>
+<hr>
+
+
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Nome" class="control-label"></label>
+                        <input asp-for="@Model.Nome" class="form-control" />
+                        <span asp-validation-for="@Model.Nome" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.IdCategoria">Categoria:</label><br>
+                        <select asp-for="@Model.IdCategoria" class="form-control"
+                                asp-items="@(IEnumerable<SelectListItem>)ViewBag.Categorias"></select>
+                        <span asp-validation-for="@Model.IdCategoria" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Valor" class="control-label"></label>
+                        <input asp-for="@Model.Valor" class="form-control" />
+                        <span asp-validation-for="@Model.Valor" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Memoria" class="control-label"></label>
+                        <input asp-for="@Model.Memoria" class="form-control" />
+                        <span asp-validation-for="@Model.Memoria" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Cor" class="control-label"></label>
+                        <input asp-for="@Model.Cor" class="form-control" />
+                        <span asp-validation-for="@Model.Cor" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.Title" class="control-label"></label>
+                        <input asp-for="@Model.Title" class="form-control" />
+                        <span asp-validation-for="@Model.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="@Model.ImageFile" class="control-label"></label>
+                        <input asp-for="@Model.ImageFile" accept="image/*" />
+                        <span asp-validation-for="@Model.ImageFile" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+        @section Scripts {
+            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        }

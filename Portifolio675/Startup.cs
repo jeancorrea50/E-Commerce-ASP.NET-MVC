@@ -24,6 +24,8 @@ namespace Portifolio675
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+           
             services.AddScoped<PortDbContext, PortDbContext>();
             services.AddControllersWithViews();
             services.AddMvc();
@@ -53,7 +55,7 @@ namespace Portifolio675
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Produtos}/{action=Index}/{id?}");
             });
         }
     }

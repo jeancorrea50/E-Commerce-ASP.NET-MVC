@@ -15,8 +15,7 @@ namespace Portifolio675.Models
         public int IdProduto { get; set; }
         public string Nome { get; set; }
 
-     
-        public Double Valor { get; set; }
+        public Decimal Valor { get; set; }
         public string Memoria { get; set; }
         public string Cor { get; set; }
 
